@@ -268,6 +268,33 @@ export function drawView(ctx: CanvasRenderingContext2D, o: ViewOpts) {
   drawFxScreen(ctx, fx, CW, CH);
 }
 
+// Adicionar após a função `drawView`
+function castRay(d: Dungeon, pos: { x: number; y: number }, dir: number, angle: number) {
+  const fwd = DIRV[dir];
+  const left = DIRV[(dir + 3) % 4];
+  
+  // Converter ângulo para direção do raio (usando coordenadas contínuas)
+  const rayAngle = dir * Math.PI / 2 + angle;
+  const rayX = Math.cos(rayAngle);
+  const rayY = Math.sin(rayAngle);
+  
+  // Percorrer o raio até encontrar uma parede
+  let distance = 0;
+  let x = pos.x, y = pos.y;
+  
+  while (distance < DEPTH) {
+    x += rayX * 0.1;
+    y += rayY * 0.1;
+    distance += 0.1;
+    
+    if (isWall(d, Math.floor(x), Math.floor(y))) {
+      return { distance, x: Math.floor(x), y: Math.floor(y) };
+    }
+  }
+  
+  return null;
+}
+
 /* ---------------- screen-space fx ---------------- */
 export function drawFxScreen(ctx: CanvasRenderingContext2D, fx: FxState, w: number, h: number) {
   if (fx.healGlow > 0) {
